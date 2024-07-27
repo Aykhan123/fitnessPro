@@ -1,5 +1,4 @@
-settings.py
-views.py
 dev-env/
-urls.py
+environment.sh
+mysite/myserver/__pycache__/views.cpython-310.pyc
 env
