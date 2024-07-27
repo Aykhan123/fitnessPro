@@ -15,6 +15,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import Tracker from "./Tracker";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -55,6 +56,9 @@ function App() {
                 <li>
                   <Link to="/Logout">Log out</Link>
                 </li>
+                <li>
+                  <Link to="/Tracker">Calorie Tracker</Link>
+                </li>
               </>
             )}
           </ul>
@@ -69,6 +73,7 @@ function App() {
           />
           <Route path="/Signup" element={<Signup onSignup={handleLogin} />} />
           <Route path="/Logout" element={<Logout />} />
+          <Route path="/Tracker" element={<Tracker />} />
         </Routes>
       </div>
     </Router>

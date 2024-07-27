@@ -7,7 +7,48 @@ function Tracker() {
   const [calories, setCalories] = useState("");
   const [foodList, setFoodList] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [foodSearch, setFoodSearch] = useState("");
+  const [foodData, setFoodData] = useState([]);
+  const [foodIdSearch, setFoodIdSearch] = useState([]);
   const inputRef = useRef(null);
+
+  let csrfToken = null;
+  const getCsrfToken = async () => {
+    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+      method: "GET",
+      credentials: "include",
+    });
+    let result = await request.json();
+    csrfToken = result.csrf;
+    return csrfToken;
+  };
+
+  const handleFoodSearch = async () => {
+    fetch("http://127.0.0.1:8000/fatsecret_request", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+      body: JSON.stringify(foodSearch),
+    })
+      .then((response) => response.json())
+      .then((data) => setFoodData(data.foods.food));
+  };
+
+  const handleFoodIdSearch = async (food_id) => {
+    fetch("http://127.0.0.1:8000/fatsecret_get", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+      body: JSON.stringify(food_id),
+    })
+      .then((response) => response.json())
+      .then((data) => setFoodIdSearch(data.food.servings.serving[0]));
+    console.log(foodIdSearch);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,19 +67,23 @@ function Tracker() {
     if (value.length === 0) {
       setSuggestions([]);
     } else {
-      // Placeholder for autocomplete logic
-      const mockSuggestions = ["Apple", "Apricot", "Appetizer"];
+      setFoodSearch(value);
+      console.log(value);
       setSuggestions(
-        mockSuggestions
-          .filter((item) => item.toLowerCase().includes(value.toLowerCase()))
-          .slice(0, 3)
+        foodData
+          .filter((item) =>
+            item.food_name.toLowerCase().includes(value.toLowerCase())
+          )
+          .slice(0, 20) // Limit number of suggestions displayed
       );
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setFoodName(suggestion);
+  const handleSuggestionClick = async (food_id) => {
+    setFoodName(suggestions.find((item) => item.food_id === food_id).food_name);
     setSuggestions([]);
+    await handleFoodIdSearch(food_id);
+    setCalories(foodIdSearch.calories);
   };
 
   const handleClickOutside = (event) => {
@@ -53,6 +98,17 @@ function Tracker() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    console.log("Food Name:", foodName);
+    console.log("Selected Food ID:", foodIdSearch);
+    console.log("Calories:", calories);
+
+    if (foodName.length > 1) {
+      handleFoodSearch();
+      console.log(foodData);
+    }
+  }, [foodName, foodIdSearch]);
 
   return (
     <div className="calorie-tracker">
@@ -78,9 +134,9 @@ function Tracker() {
                   {suggestions.map((suggestion, index) => (
                     <li
                       key={index}
-                      onClick={() => handleSuggestionClick(suggestion)}
+                      onClick={() => handleSuggestionClick(suggestion.food_id)}
                     >
-                      {suggestion}
+                      {suggestion.food_name}
                     </li>
                   ))}
                 </ul>
@@ -137,13 +193,3 @@ function Tracker() {
 }
 
 export default Tracker;
-
-/*
-style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-*/
