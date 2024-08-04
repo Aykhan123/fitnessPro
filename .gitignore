@@ -1,3 +1,5 @@
 dev-env/
 environment.sh
 mysite/myserver/__pycache__/views.cpython-310.pyc
+env
+.env
