@@ -27,7 +27,7 @@ urlpatterns = [
     re_path('log_in', views.log_in),
     re_path('sign_up', views.sign_up),
     re_path('test_token', views.test_token),
-    re_path('sign_out', views.sign_out),
+    # re_path('sign_out', views.sign_out),
 
 ]
 

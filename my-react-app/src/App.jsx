@@ -8,6 +8,7 @@ import GetFoods from "./pages/GetFoods";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
+import User from "./pages/User"
 import {
   BrowserRouter as Router,
   Route,
@@ -30,31 +31,39 @@ function App() {
     setIsAuthenticated(true);
   };
 
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("token");
+  };
+
   return (
     <Router>
       <div>
         <nav>
           <ul>
-            <li>
+            <ul>
               <Link to="/">Home Page</Link>
-            </li>
+            </ul>
             {!isAuthenticated ? (
               <>
-                <li>
+                <ul>
                   <Link to="/Login">Login</Link>
-                </li>
-                <li>
+                </ul>
+                <ul>
                   <Link to="/Signup">Sign Up</Link>
-                </li>
+                </ul>
               </>
             ) : (
               <>
-                <li>
+              <ul>
+                <Link to="/User">User</Link>
+              </ul>
+                <ul>
                   <Link to="/getFoods">Get Foods</Link>
-                </li>
-                <li>
+                </ul>
+                <ul>
                   <Link to="/Logout">Log out</Link>
-                </li>
+                </ul>
               </>
             )}
           </ul>
@@ -62,13 +71,15 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/Login" element={<Login />} />
+          <Route path="/Login" element={<Login onLogin={handleLogin} />} />
           <Route
             path="/getFoods"
-            element={isAuthenticated ? <GetFoods /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <GetFoods /> : <Navigate to="/Login" />}
           />
           <Route path="/Signup" element={<Signup onSignup={handleLogin} />} />
-          <Route path="/Logout" element={<Logout />} />
+          <Route path="/Logout" element={<Logout onLogout={logout} />} />
+          <Route path="/User" element={<User/>} />
+          
         </Routes>
       </div>
     </Router>

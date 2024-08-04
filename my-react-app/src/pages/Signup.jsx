@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Signup = ({ onSignup }) => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   let csrfToken = null;
   const getCsrfToken = async () => {
@@ -58,6 +58,7 @@ const Signup = ({ onSignup }) => {
         const data = await logIn.json();
         const token = data.token;
         localStorage.setItem("token", token);
+        window.location.reload();
         navigate("/");
       } else {
         console.log("Failed to log in");

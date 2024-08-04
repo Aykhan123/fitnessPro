@@ -163,13 +163,79 @@ def test_token(request):
     return Response("passed for {}".format(request.user))
 
 
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def sign_out(request):
-    try:
-        request.user.auth_token.delete()
-        return Response({"Successfully logged out"}, status=status.HTTP_200_OK)
-    except Token.DoesNotExist:
-        return Response({"Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+# def sign_out(request):
+#     try:
+#         request.user.auth_token.delete()
+#         return Response({"Successfully logged out"}, status=status.HTTP_200_OK)
+#     except Token.DoesNotExist:
+#         return Response({"Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
+def add_food_entry(request):
+    if request.method == "POST":
+        food_name = request.POST["food_name"]
+        calcium = float(request.POST["calcium"])
+        calories = float(request.POST["calories"])
+        carbohydrate = float(request.POST["carbohydrate"])
+        cholesterol = float(request.POST["cholesterol"])
+        fat = float(request.POST["fat"])
+        fiber = float(request.POST["fiber"])
+        iron = float(request.POST["iron"])
+        monounsaturated_fat = float(request.POST["monounsaturated_fat"])
+        polyunsaturated_fat = float(request.POST["polyunsaturated_fat"])
+        potassium = float(request.POST["potassium"])
+        protein = float(request.POST["protein"])
+        saturated_fat = float(request.POST["saturated_fat"])
+        sodium = float(request.POST["sodium"])
+        sugar = float(request.POST["sugar"])
+        vitamin_a = float(request.POST["vitamin_a"])
+        vitamin_c = float(request.POST["vitamin_c"])
+
+        food_entry = FoodEntry.objects.create(
+            user=request.user,
+            food_name=food_name,
+            calcium=calcium,
+            calories=calories,
+            carbohydrate=carbohydrate,
+            cholesterol=cholesterol,
+            fat=fat,
+            fiber=fiber,
+            iron=iron,
+            monounsaturated_fat=monounsaturated_fat,
+            polyunsaturated_fat=polyunsaturated_fat,
+            potassium=potassium,
+            protein=protein,
+            saturated_fat=saturated_fat,
+            sodium=sodium,
+            sugar=sugar,
+            vitamin_a=vitamin_a,
+            vitamin_c=vitamin_c
+        )
+
+        today = date.today()
+        daily_nutrition, created = DailyNutrition.objects.get_or_create(
+            user=request.user, date=today
+        )
+        daily_nutrition.calcium += calcium
+        daily_nutrition.calories += calories
+        daily_nutrition.carbohydrate += carbohydrate
+        daily_nutrition.cholesterol += cholesterol
+        daily_nutrition.fat += fat
+        daily_nutrition.fiber += fiber
+        daily_nutrition.iron += iron
+        daily_nutrition.monounsaturated_fat += monounsaturated_fat
+        daily_nutrition.polyunsaturated_fat += polyunsaturated_fat
+        daily_nutrition.potassium += potassium
+        daily_nutrition.protein += protein
+        daily_nutrition.saturated_fat += saturated_fat
+        daily_nutrition.sodium += sodium
+        daily_nutrition.sugar += sugar
+        daily_nutrition.vitamin_a += vitamin_a
+        daily_nutrition.vitamin_c += vitamin_c
+        daily_nutrition.save()
+
+        return redirect("home")
+
+    return render(request, "add_food_entry.html")
