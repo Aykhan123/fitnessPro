@@ -23,7 +23,12 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
-
+from myserver.models import DailyNutrition
+from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
+from django.utils.functional import SimpleLazyObject
+from django.db.models import Sum
+from django.utils.timezone import now
 
 
 # Create your views here.
@@ -173,51 +178,38 @@ def test_token(request):
 #     except Token.DoesNotExist:
 #         return Response({"Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-def add_food_entry(request):
+# @csrf_exempt
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def add_nutrition(request):
     if request.method == "POST":
-        food_name = request.POST["food_name"]
-        calcium = float(request.POST["calcium"])
-        calories = float(request.POST["calories"])
-        carbohydrate = float(request.POST["carbohydrate"])
-        cholesterol = float(request.POST["cholesterol"])
-        fat = float(request.POST["fat"])
-        fiber = float(request.POST["fiber"])
-        iron = float(request.POST["iron"])
-        monounsaturated_fat = float(request.POST["monounsaturated_fat"])
-        polyunsaturated_fat = float(request.POST["polyunsaturated_fat"])
-        potassium = float(request.POST["potassium"])
-        protein = float(request.POST["protein"])
-        saturated_fat = float(request.POST["saturated_fat"])
-        sodium = float(request.POST["sodium"])
-        sugar = float(request.POST["sugar"])
-        vitamin_a = float(request.POST["vitamin_a"])
-        vitamin_c = float(request.POST["vitamin_c"])
+        user = request.user
 
-        food_entry = FoodEntry.objects.create(
-            user=request.user,
-            food_name=food_name,
-            calcium=calcium,
-            calories=calories,
-            carbohydrate=carbohydrate,
-            cholesterol=cholesterol,
-            fat=fat,
-            fiber=fiber,
-            iron=iron,
-            monounsaturated_fat=monounsaturated_fat,
-            polyunsaturated_fat=polyunsaturated_fat,
-            potassium=potassium,
-            protein=protein,
-            saturated_fat=saturated_fat,
-            sodium=sodium,
-            sugar=sugar,
-            vitamin_a=vitamin_a,
-            vitamin_c=vitamin_c
-        )
+        if not user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
 
-        today = date.today()
-        daily_nutrition, created = DailyNutrition.objects.get_or_create(
-            user=request.user, date=today
-        )
+        data = json.loads(request.body)
+        date = now().date()
+
+        calcium = float(data.get("calcium", 0))
+        calories = float(data.get("calories", 0))
+        carbohydrate = float(data.get("carbohydrate", 0))
+        cholesterol = float(data.get("cholesterol", 0))
+        fat = float(data.get("fat", 0))
+        fiber = float(data.get("fiber", 0))
+        iron = float(data.get("iron", 0))
+        monounsaturated_fat = float(data.get("monounsaturated_fat", 0))
+        polyunsaturated_fat = float(data.get("polyunsaturated_fat", 0))
+        potassium = float(data.get("potassium", 0))
+        protein = float(data.get("protein", 0))
+        saturated_fat = float(data.get("saturated_fat", 0))
+        sodium = float(data.get("sodium", 0))
+        sugar = float(data.get("sugar", 0))
+        vitamin_a = float(data.get("vitamin_a", 0))
+        vitamin_c = float(data.get("vitamin_c", 0))
+
+        daily_nutrition, created = DailyNutrition.objects.get_or_create(user=user, date=date)
         daily_nutrition.calcium += calcium
         daily_nutrition.calories += calories
         daily_nutrition.carbohydrate += carbohydrate
@@ -236,6 +228,43 @@ def add_food_entry(request):
         daily_nutrition.vitamin_c += vitamin_c
         daily_nutrition.save()
 
-        return redirect("home")
+        return JsonResponse({"status": "success"})
 
-    return render(request, "add_food_entry.html")
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+
+
+# @csrf_exempt
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_nutrition_data(request):
+    user = request.user
+    date = now().date()
+    
+    try:
+        daily_nutrition = DailyNutrition.objects.filter(user=user, date=date).aggregate(
+            calcium=Sum('calcium'),
+            calories=Sum('calories'),
+            carbohydrate=Sum('carbohydrate'),
+            cholesterol=Sum('cholesterol'),
+            fat=Sum('fat'),
+            fiber=Sum('fiber'),
+            iron=Sum('iron'),
+            monounsaturated_fat=Sum('monounsaturated_fat'),
+            polyunsaturated_fat=Sum('polyunsaturated_fat'),
+            potassium=Sum('potassium'),
+            protein=Sum('protein'),
+            saturated_fat=Sum('saturated_fat'),
+            sodium=Sum('sodium'),
+            sugar=Sum('sugar'),
+            vitamin_a=Sum('vitamin_a'),
+            vitamin_c=Sum('vitamin_c')
+        )
+        
+        return JsonResponse(daily_nutrition)
+    except DailyNutrition.DoesNotExist:
+        return JsonResponse({'error': 'No data found'}, status=404)
+
+
+

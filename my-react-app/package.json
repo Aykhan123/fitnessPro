@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.7.3",
+    "bootstrap": "^5.3.3",
     "chart.js": "^4.4.3",
+    "dotenv": "^16.4.5",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.4",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-modal": "^3.16.1",
@@ -25,6 +29,7 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "tailwindcss": "^3.4.7",
     "vite": "^5.3.1"
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -16,6 +17,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import Tracker from "./Tracker";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -38,35 +40,66 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <nav>
-          <ul>
-            <ul>
-              <Link to="/">Home Page</Link>
+      <div className="mainContainer">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+          <Link className="navbar-brand" to="/">
+            Calorie Tracker
+          </Link>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <Link className="nav-link" to="/">
+                  Home
+                </Link>
+              </li>
+              {!isAuthenticated ? (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/Login">
+                      Login
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/Signup">
+                      Sign Up
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/getFoods">
+                      Get Foods
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/Logout">
+                      Log out
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/Tracker">
+                      Calorie Tracker
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to='/User'>User</Link>
+                  </li>
+                </>
+              )}
             </ul>
-            {!isAuthenticated ? (
-              <>
-                <ul>
-                  <Link to="/Login">Login</Link>
-                </ul>
-                <ul>
-                  <Link to="/Signup">Sign Up</Link>
-                </ul>
-              </>
-            ) : (
-              <>
-              <ul>
-                <Link to="/User">User</Link>
-              </ul>
-                <ul>
-                  <Link to="/getFoods">Get Foods</Link>
-                </ul>
-                <ul>
-                  <Link to="/Logout">Log out</Link>
-                </ul>
-              </>
-            )}
-          </ul>
+          </div>
         </nav>
 
         <Routes>
@@ -77,9 +110,9 @@ function App() {
             element={isAuthenticated ? <GetFoods /> : <Navigate to="/Login" />}
           />
           <Route path="/Signup" element={<Signup onSignup={handleLogin} />} />
-          <Route path="/Logout" element={<Logout onLogout={logout} />} />
-          <Route path="/User" element={<User/>} />
-          
+          <Route path="/Logout" element={<Logout />} />
+          <Route path="/Tracker" element={<Tracker />} />
+          <Route path="/User" element={<User />} />
         </Routes>
       </div>
     </Router>
