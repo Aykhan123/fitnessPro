@@ -120,7 +120,10 @@ function Tracker() {
         <section className="add-food">
           <h2>Add Food Item</h2>
           <form onSubmit={handleSubmit}>
-            <div className="form-group autocomplete">
+            <div
+              className="form-group autocomplete"
+              style={{ display: "flex", justifyContent: "space-evenly" }}
+            >
               <label htmlFor="food-name">Food Name:</label>
               <input
                 type="text"
@@ -137,6 +140,7 @@ function Tracker() {
                       onClick={() => handleSuggestionClick(suggestion.food_id)}
                     >
                       {suggestion.food_name}
+                      {suggestion.brand_name}
                     </li>
                   ))}
                 </ul>
@@ -147,7 +151,7 @@ function Tracker() {
                 width: "100%",
                 height: "100%",
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: "space-evenly",
                 alignItems: "center",
               }}
               className="form-group"
