@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
-from myserver.models import DailyNutrition
+from myserver.models import DailyNutrition, CalorieTracker
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.utils.functional import SimpleLazyObject
@@ -265,6 +265,45 @@ def get_nutrition_data(request):
         return JsonResponse(daily_nutrition)
     except DailyNutrition.DoesNotExist:
         return JsonResponse({'error': 'No data found'}, status=404)
+
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def calorie_tracker(request):
+    if(request.method == 'POST'):
+         body = json.loads(request.body)
+         user = request.user
+         food_name = body.get('food_name')
+         total_calories = float(body.get('total_calories'))
+         date = now().date()
+         
+         calorie_tracker = CalorieTracker.objects.create(user=user, date=date, food_name=food_name, total_calories=total_calories)
+         calorie_tracker.save()
+         return JsonResponse({"status": "saved to calories_tracker"},status=200)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_calorie_tracker(request):
+    user = request.user
+    date = now().date()
+
+    try:
+        calories_tracker = CalorieTracker.objects.filter(user=user, date=date).values('food_name', 'total_calories')
+        calories_list = list(calories_tracker)
+        return JsonResponse(calories_list, safe=False)
+    except CalorieTracker.DoesNotExist:
+        return JsonResponse({'error': 'No data found'}, status=404)
+
+
+
+
+
+   
+
 
 
 

@@ -10,6 +10,7 @@ function Tracker() {
   const [foodSearch, setFoodSearch] = useState("");
   const [foodData, setFoodData] = useState([]);
   const [foodIdSearch, setFoodIdSearch] = useState([]);
+  const [foodTracker, setFoodTracker] = useState("");
   const inputRef = useRef(null);
 
   let csrfToken = null;
@@ -22,6 +23,33 @@ function Tracker() {
     csrfToken = result.csrf;
     return csrfToken;
   };
+
+  const fetchFoodList = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://127.0.0.1:8000/get_calorie_tracker", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      const initialFoodList = data.map((item) => ({
+        foodName: item.food_name,
+        calories: item.total_calories,
+      }));
+      setFoodList(initialFoodList);
+    }
+  };
+
+  useEffect(() => {
+    fetchFoodList();
+  }, []);
 
   const handleFoodSearch = async () => {
     fetch("http://127.0.0.1:8000/fatsecret_request", {
@@ -52,13 +80,29 @@ function Tracker() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
     if (foodName && calories) {
       console.log("Yes");
-      setFoodList([...foodList, { foodName, calories }]);
+
+      await fetch("http://127.0.0.1:8000/calorie_tracker", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          food_name: foodName,
+          total_calories: calories,
+        }),
+      });
+
+      // setFoodList([...foodList, { foodName, calories }]);
       setFoodName("");
       setCalories("");
       setSuggestions([]);
-      const token = localStorage.getItem("token");
+
       await fetch("http://127.0.0.1:8000/add_nutrition", {
         method: "POST",
         headers: {
@@ -88,6 +132,7 @@ function Tracker() {
         }),
       });
     }
+    window.location.reload();
   };
 
   const handleFoodNameChange = (e) => {

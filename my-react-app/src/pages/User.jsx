@@ -9,8 +9,8 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
-
 import Modal from "react-modal";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 ChartJS.register(
   ArcElement,
@@ -88,6 +88,7 @@ const User = () => {
 
         if (response.ok) {
           const data = await response.json();
+          console.log(data)
           setNutritionData(data);
         } else {
           console.error("Failed to fetch nutritional data");
@@ -143,6 +144,10 @@ const User = () => {
     0
   );
 
+  // Assuming a fixed goal for demonstration purposes
+  const goal = 2000; // Adjust as needed
+  const progress = (totalNutrition / goal) * 100;
+
   const weeklyData = {
     labels: [
       "Monday",
@@ -169,6 +174,43 @@ const User = () => {
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <h1>Nutrition Tracker</h1>
+
+      <div style={{ width: "80%", marginBottom: "20px" }}>
+        <h2>Progress Towards Daily Goal</h2>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ flexGrow: 1 }}>
+            <div
+              style={{
+                width: "100%",
+                height: "30px",
+                backgroundColor: "#e9ecef",
+                borderRadius: "5px",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  width: `${progress}%`,
+                  height: "100%",
+                  backgroundColor: "lightgreen",
+                  borderRadius: "5px 0 0 5px",
+                  transition: "width 0.5s",
+                }}
+              ></div>
+            </div>
+          </div>
+          <div
+            style={{
+              marginLeft: "10px",
+              fontWeight: "bold",
+              color: "lightgreen",
+            }}
+          >
+            {`${progress.toFixed(2)}%`}
+          </div>
+        </div>
+      </div>
 
       <div style={{ width: "80%", marginBottom: "20px" }}>
         <h2>Weekly Progress</h2>

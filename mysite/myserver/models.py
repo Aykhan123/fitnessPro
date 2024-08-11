@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-
 class DailyNutrition(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
@@ -26,6 +25,23 @@ class DailyNutrition(models.Model):
     sugar = models.FloatField(default=0)
     vitamin_a = models.FloatField(default=0)
     vitamin_c = models.FloatField(default=0)
+
+
+class CalorieTracker(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    total_calories = models.FloatField(default=0)
+    food_name = models.CharField(max_length=200)
+
+
+
+
+
+
+
+
+
+
 
 
 

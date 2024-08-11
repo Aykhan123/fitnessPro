@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-from myserver.views import csrftoken, fatsecret_request, fatsecret_get, add_nutrition,get_nutrition_data
+from myserver.views import csrftoken, fatsecret_request, fatsecret_get, add_nutrition,get_nutrition_data,calorie_tracker,get_calorie_tracker
 from myserver import views
 
 urlpatterns = [
@@ -29,6 +29,8 @@ urlpatterns = [
     re_path('test_token', views.test_token),
     path('add_nutrition', add_nutrition),
     path('get_nutrition_data', get_nutrition_data),
+    path('calorie_tracker', calorie_tracker),
+    path('get_calorie_tracker', get_calorie_tracker),
     # re_path('sign_out', views.sign_out),
 
 ]
