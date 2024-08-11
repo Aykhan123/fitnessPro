@@ -1,0 +1,63 @@
+.hero {
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
+
+.lead {
+  font-size: 1.5rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Features Section */
+.sectionContainer {
+  padding: 50px 0;
+}
+
+.features-icon {
+  font-size: 3rem;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+/* Reviews Section */
+#reviews {
+  background-color: #f8f9fa;
+  padding: 50px 0;
+}
+
+.review {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dot.active {
+  background-color: #007bff;
+}
+
+/* Footer */
+footer {
+  padding: 20px 0;
+  background-color: #343a40;
+  color: white;
+}

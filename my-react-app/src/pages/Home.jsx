@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../App.css";
+import "../Home.css";
 import { Link } from "react-router-dom";
+import FeatureSection from "../components/FeaturesSection";
+import Hero from "../components/LandingPage";
+import Testimonial from "../components/Testimonials";
+import Footer from "../components/Footer";
+
 function Home() {
   const [backgroundImage, setBackgroundImage] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,52 +45,46 @@ function Home() {
 
     fetchBackgroundImage();
   }, []);
+
+  const testimonials = [
+    {
+      quote: "Love this app. It keeps me on track with my nutritional goals.",
+      author: "Annette B.",
+    },
+    {
+      quote:
+        "Not only are the tools super helpful, the customer service is insanely awesome!",
+      author: "Laura K.",
+    },
+    {
+      quote:
+        "Helped me get moving on my goals and tracking my weight loss and bodybuilding.",
+      author: "Jason L.",
+    },
+    {
+      quote:
+        "Good for tracking calories and macros with a huge database of food.",
+      author: "Iain M.",
+    },
+    {
+      quote: "Friendly, easy-to-use app that keeps me accountable.",
+      author: "Dinah L.",
+    },
+  ];
+
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const handleDotClick = (index) => {
+    setCurrentTestimonial(index);
+  };
+
   return (
-    <div className="container">
-      {/* Hero Section */}
-      <header
-        className="hero d-flex justify-content-center align-items-center"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      >
-        <div className="text-center">
-          <h1>Track Your Calories</h1>
-          <p className="lead">
-            Stay healthy and fit by tracking your daily calorie intake.
-          </p>
-          <Link to="/Signup" className="btn btn-primary btn-lg">
-            Get Started
-          </Link>
-        </div>
-      </header>
-
-      {/* Features Section */}
-      <section className="sectionContainer">
-        <div className="row text-center">
-          <div className="col-md-4">
-            <i className="features-icon fas fa-apple-alt"></i>
-            <h3>Easy to Use</h3>
-            <p>Simple and intuitive interface to track your calories easily.</p>
-          </div>
-          <div className="col-md-4">
-            <i className="features-icon fas fa-chart-line"></i>
-            <h3>Detailed Reports</h3>
-            <p>Get detailed reports on your calorie intake and progress.</p>
-          </div>
-          <div className="col-md-4">
-            <i className="features-icon fas fa-heart"></i>
-            <h3>Health Tips</h3>
-            <p>
-              Receive health tips and recommendations tailored to your goals.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-light text-center">
-        <p>&copy; 2024 Calorie Tracker. All rights reserved.</p>
-      </footer>
-    </div>
+    <>
+      <Hero />
+      <FeatureSection />
+      <Testimonial />
+      <Footer />
+    </>
   );
 }
 
