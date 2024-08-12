@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
-from myserver.models import DailyNutrition, CalorieTracker
+from myserver.models import DailyNutrition, CalorieTracker, Pictures
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.utils.functional import SimpleLazyObject
@@ -279,7 +279,7 @@ def calorie_tracker(request):
          total_calories = float(body.get('total_calories'))
          date = now().date()
          
-         calorie_tracker = CalorieTracker.objects.create(user=user, date=date, food_name=food_name, total_calories=total_calories)
+         calorie_tracker = CalorieTracker.objects.create(user=user, date=date, food_name=food_name, total_calories=total_calories )
          calorie_tracker.save()
          return JsonResponse({"status": "saved to calories_tracker"},status=200)
 
@@ -297,7 +297,48 @@ def get_calorie_tracker(request):
         return JsonResponse(calories_list, safe=False)
     except CalorieTracker.DoesNotExist:
         return JsonResponse({'error': 'No data found'}, status=404)
+    
 
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def post_image(request):
+    if request.method == 'POST':
+        try:
+            user = request.user
+            request_body = json.loads(request.body)
+            file_name = request_body['pictureName']
+            image_data = request_body["image"].split(',')[1]
+            encoded_image = base64.decodebytes(bytes(image_data, "utf-8"))
+            
+            Pictures.objects.create(
+                picture_name=file_name,
+                image_data=encoded_image,
+                user=user
+            )
+            
+            return HttpResponse("Image successfully posted", status=200)
+        except Exception:
+            return HttpResponse("Failed to post image", status=400)
+    return HttpResponse("Invalid request method", status=405)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_image(request):
+    try:
+        user = request.user
+        image = Pictures.objects.get(user=user)
+        image_data = image.read_img()
+        image_data = base64.b64encode(image_data).decode()
+        return JsonResponse({'data': image_data}, status=200)
+    except Pictures.DoesNotExist:
+        return JsonResponse({'error': 'No image found for this user'}, status=404)
+
+    
+    
 
 
 

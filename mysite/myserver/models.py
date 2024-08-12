@@ -33,6 +33,18 @@ class CalorieTracker(models.Model):
     total_calories = models.FloatField(default=0)
     food_name = models.CharField(max_length=200)
 
+class Pictures(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    picture_name = models.CharField(max_length=200)
+    image_data = models.BinaryField() 
+    
+    def save_image(self, image):
+        self.image_data = image
+        self.save()
+
+    def read_image(self):
+        return self.image_data
+
 
 
 
