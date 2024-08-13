@@ -312,10 +312,12 @@ def post_image(request):
             image_data = request_body["image"].split(',')[1]
             encoded_image = base64.decodebytes(bytes(image_data, "utf-8"))
             
-            Pictures.objects.create(
-                picture_name=file_name,
-                image_data=encoded_image,
-                user=user
+            Pictures.objects.update_or_create(
+                user=user,
+                defaults={
+                    'picture_name': file_name,
+                    'image_data': encoded_image
+                }
             )
             
             return HttpResponse("Image successfully posted", status=200)
@@ -331,12 +333,23 @@ def get_image(request):
     try:
         user = request.user
         image = Pictures.objects.get(user=user)
-        image_data = image.read_img()
+        image_data = image.image_data
         image_data = base64.b64encode(image_data).decode()
         return JsonResponse({'data': image_data}, status=200)
     except Pictures.DoesNotExist:
         return JsonResponse({'error': 'No image found for this user'}, status=404)
-
+    
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_image(request):
+    try:
+        user = request.user
+        pic = Pictures.objects.get(user=user)
+        pic.delete()
+        return JsonResponse({'status': 'Picture was successfully deleted'}, status=200)
+    except Pictures.DoesNotExist:
+        return JsonResponse({'error': 'Picture was not found for this user'}, status=404)
     
     
 

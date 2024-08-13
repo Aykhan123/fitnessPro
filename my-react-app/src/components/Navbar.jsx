@@ -22,6 +22,7 @@ const navigation = [
   { name: "Home", href: "/", current: true },
   { name: "Get Foods", href: "/getFoods", current: false },
   { name: "Calorie Tracker", href: "#", current: false },
+  { name: "User", href: "/User", current: false },
 ];
 const Navbar = ({ isAuthenticated }) => {
   const location = useLocation();
@@ -34,40 +35,44 @@ const Navbar = ({ isAuthenticated }) => {
 
   //GET IMAGE FUNCTION
 
-  // const[image, setImage] = useState("")
+  const[image, setImage] = useState("")
 
-  // let csrfToken = null;
-  // const getCsrfToken = async () => {
-  //   const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
-  //     method: "GET",
-  //     credentials: "include",
-  //   });
-  //   let result = await request.json();
-  //   csrfToken = result.csrf;
-  //   return csrfToken;
-  // };
+  let csrfToken = null;
+  const getCsrfToken = async () => {
+    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+      method: "GET",
+      credentials: "include",
+    });
+    let result = await request.json();
+    csrfToken = result.csrf;
+    return csrfToken;
+  };
 
-  // useEffect(() => {
-  //   const fetchImage = async () => {
-  //     const token = localStorage.getItem('token')
-  //     const fetch = await ("http://127.0.0.1:8000/get_images/",{
-  //       method:'POST',
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Token ${token}`,
-  //         "X-CSRFToken": await getCsrfToken(),
-  //       },
-  //     })
-  //     if(fetch.ok){
-  //       const data = await fetch.json()
-  //       if(data.length > 0){
-  //         setImage(`data:image/jpeg;base64,${data.image_data}`)
-  //       }
-  //     }
-  //   }
-  //   fetchImage()
+  useEffect(() => {
+    const fetchImage = async () => {
+        const token = "3c1148337d673b3567a6d486590f90407d88600d";
+        const response = await fetch("http://127.0.0.1:8000/get_image", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${token}`,
+                "X-CSRFToken": await getCsrfToken(),
+            },
+        });
 
-  // },[])
+        if (response.ok) {
+            const data = await response.json();
+            if (data.data) {
+                setImage(`data:image/jpeg;base64,${data.data}`);
+                console.log(data.image_data)
+            }
+        } 
+    };
+
+    fetchImage();
+}, []);
+
+
 
   return (
     <>
@@ -131,7 +136,7 @@ const Navbar = ({ isAuthenticated }) => {
                     <span className="sr-only">Open user menu</span>
                     <img
                       alt=""
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                      src={image}
                       className="h-8 w-8 rounded-full"
                     />
                   </MenuButton>
