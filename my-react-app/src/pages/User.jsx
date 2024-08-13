@@ -89,7 +89,7 @@ const User = () => {
   };
 
   const postImage = async () => {
-    const token = "3c1148337d673b3567a6d486590f90407d88600d";
+    const token = localStorage.getItem("token");
     const response = await fetch("http://127.0.0.1:8000/post_image", {
       method: "POST",
       credentials: "include",
@@ -109,7 +109,7 @@ const User = () => {
   };
 
   const deleteImage = async () => {
-    const token = "3c1148337d673b3567a6d486590f90407d88600d";
+    const token = localStorage.getItem('token');
     const response = await fetch("http://127.0.0.1:8000/delete_image", {
       method: "POST",
       credentials: "include",

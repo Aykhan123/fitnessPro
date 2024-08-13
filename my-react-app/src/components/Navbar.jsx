@@ -50,7 +50,7 @@ const Navbar = ({ isAuthenticated }) => {
 
   useEffect(() => {
     const fetchImage = async () => {
-        const token = "3c1148337d673b3567a6d486590f90407d88600d";
+        const token = localStorage.getItem('token');
         const response = await fetch("http://127.0.0.1:8000/get_image", {
             method: 'POST',
             headers: {
