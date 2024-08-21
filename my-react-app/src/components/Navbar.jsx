@@ -20,7 +20,7 @@ function classNames(...classes) {
 const navigation = [
   { name: "Home", href: "/", current: true },
   { name: "Get Foods", href: "/getFoods", current: false },
-  { name: "Calorie Tracker", href: "#", current: false },
+  { name: "Calorie Tracker", href: "/Tracker", current: false },
 ];
 const Navbar = ({ isAuthenticated }) => {
   const location = useLocation();
@@ -30,6 +30,35 @@ const Navbar = ({ isAuthenticated }) => {
   if (hideNavbarOnPaths.includes(location.pathname)) {
     return null; // Don't render the navbar
   }
+
+  let csrfToken = null;
+  const getCsrfToken = async () => {
+    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+      method: "GET",
+      credentials: "include",
+    });
+    let result = await request.json();
+    csrfToken = result.csrf;
+    return csrfToken;
+  };
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    console.log(token);
+    if (token) {
+      const response = await fetch("http://127.0.0.1:8000/sign_out", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": await getCsrfToken(),
+          Authorization: `Token ${token}`,
+        },
+      });
+      if (response.ok) {
+        localStorage.removeItem("token");
+        console.log("token removed successfully");
+        window.location.reload();
+      }
+    }
+  };
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -75,15 +104,6 @@ const Navbar = ({ isAuthenticated }) => {
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <button
-              type="button"
-              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-            >
-              <span className="absolute -inset-1.5" />
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="h-6 w-6" />
-            </button>
-
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
               <div>
@@ -92,7 +112,7 @@ const Navbar = ({ isAuthenticated }) => {
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt=""
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                     className="h-8 w-8 rounded-full"
                   />
                 </MenuButton>
@@ -102,17 +122,18 @@ const Navbar = ({ isAuthenticated }) => {
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
               >
                 <MenuItem>
-                  <a
-                    href="#"
+                  <Link
+                    to="/Profile"
                     className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
                   >
                     Your Profile
-                  </a>
+                  </Link>
                 </MenuItem>
                 <MenuItem>
                   <a
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                    onClick={handleLogout}
                   >
                     Sign out
                   </a>

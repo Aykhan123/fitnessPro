@@ -6,8 +6,10 @@ import "./App.css";
 import Login from "./pages/Login";
 import GetFoods from "./pages/GetFoods";
 import Home from "./pages/Home";
+import HomePage from "./pages/HomePage";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
+import Profile from "./pages/Profile";
 import TermsAndConditions from "./pages/Terms";
 import {
   BrowserRouter as Router,
@@ -57,6 +59,8 @@ function App() {
         <Route path="/Logout" element={<Logout />} />
         <Route path="/Tracker" element={<Tracker />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/Homepage" element={<HomePage />} />
       </Routes>
     </Router>
   );
