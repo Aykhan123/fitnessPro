@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "python",
+            "name": "indigo",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "program": "/Users/ayaizkhan/marcy/fitnessPro/mysite/manage.py",
+            "args": [
+                "runserver"
+            ],
+            "django": true,
+            "env": {
+                "PYTHONPATH": "/Users/ayaizkhan/marcy/fitnessPro/mysite"
+            },
+            "python": "/Users/ayaizkhan/marcy/fitnessPro/mysite/dev-env/bin/python3"
+        }
+    ]
+}

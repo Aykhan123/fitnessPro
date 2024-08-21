@@ -4,9 +4,9 @@ import Logo from "../assets/FitnessPro (Logo)[Dark].png";
 import { Link } from "react-router-dom";
 
 const Signup = ({ onSignup }) => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   let csrfToken = null;
   const getCsrfToken = async () => {
@@ -61,6 +61,8 @@ const Signup = ({ onSignup }) => {
         const token = data.token;
         localStorage.setItem("token", token);
         navigate("/");
+        window.location.reload();
+  
       } else {
         console.log("Failed to log in");
       }
