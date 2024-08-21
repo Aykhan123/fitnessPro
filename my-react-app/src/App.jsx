@@ -10,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
 import Profile from "./pages/Profile";
+import User from "./pages/User"
 import TermsAndConditions from "./pages/Terms";
 import {
   BrowserRouter as Router,
@@ -45,6 +46,11 @@ function App() {
     setIsAuthenticated(true);
   };
 
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("token");
+  };
+
   return (
     <Router>
       {isAuthenticated && <Navbar isAuthenticated={isAuthenticated} />}
@@ -58,6 +64,7 @@ function App() {
         <Route path="/Signup" element={<Signup onSignup={handleLogin} />} />
         <Route path="/Logout" element={<Logout />} />
         <Route path="/Tracker" element={<Tracker />} />
+        <Route path="/User" element={<User />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/Homepage" element={<HomePage />} />

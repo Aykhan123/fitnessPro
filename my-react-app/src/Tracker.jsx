@@ -10,6 +10,7 @@ function Tracker() {
   const [foodSearch, setFoodSearch] = useState("");
   const [foodData, setFoodData] = useState([]);
   const [foodIdSearch, setFoodIdSearch] = useState([]);
+  const [foodTracker, setFoodTracker] = useState("");
   const inputRef = useRef(null);
 
   let csrfToken = null;
@@ -22,6 +23,33 @@ function Tracker() {
     csrfToken = result.csrf;
     return csrfToken;
   };
+
+  const fetchFoodList = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://127.0.0.1:8000/get_calorie_tracker", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      const initialFoodList = data.map((item) => ({
+        foodName: item.food_name,
+        calories: item.total_calories,
+      }));
+      setFoodList(initialFoodList);
+    }
+  };
+
+  useEffect(() => {
+    fetchFoodList();
+  }, []);
 
   const handleFoodSearch = async () => {
     fetch("http://127.0.0.1:8000/fatsecret_request", {
@@ -50,15 +78,61 @@ function Tracker() {
     console.log(foodIdSearch);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
     if (foodName && calories) {
       console.log("Yes");
-      setFoodList([...foodList, { foodName, calories }]);
+
+      await fetch("http://127.0.0.1:8000/calorie_tracker", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          food_name: foodName,
+          total_calories: calories,
+        }),
+      });
+
+      // setFoodList([...foodList, { foodName, calories }]);
       setFoodName("");
       setCalories("");
       setSuggestions([]);
+
+      await fetch("http://127.0.0.1:8000/add_nutrition", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          date: new Date().toISOString().split("T")[0],
+          calcium: foodIdSearch.calcium || 0,
+          calories: foodIdSearch.calories || 0,
+          carbohydrate: foodIdSearch.carbohydrate || 0,
+          cholesterol: foodIdSearch.cholesterol || 0,
+          fat: foodIdSearch.fat || 0,
+          fiber: foodIdSearch.fiber || 0,
+          iron: foodIdSearch.iron || 0,
+          monounsaturated_fat: foodIdSearch.monounsaturated_fat || 0,
+          polyunsaturated_fat: foodIdSearch.polyunsaturated_fat || 0,
+          potassium: foodIdSearch.potassium || 0,
+          protein: foodIdSearch.protein || 0,
+          saturated_fat: foodIdSearch.saturated_fat || 0,
+          sodium: foodIdSearch.sodium || 0,
+          sugar: foodIdSearch.sugar || 0,
+          vitamin_a: foodIdSearch.vitamin_a || 0,
+          vitamin_c: foodIdSearch.vitamin_c || 0,
+        }),
+      });
     }
+    window.location.reload();
   };
 
   const handleFoodNameChange = (e) => {
@@ -84,6 +158,7 @@ function Tracker() {
     setSuggestions([]);
     await handleFoodIdSearch(food_id);
     setCalories(foodIdSearch.calories);
+    setCalories(foodIdSearch.calories || "");
   };
 
   const handleClickOutside = (event) => {
