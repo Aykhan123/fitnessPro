@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/FitnessPro (Logo)[Dark].png";
 import { Link } from "react-router-dom";
@@ -65,7 +65,6 @@ const Signup = ({ onSignup }) => {
         localStorage.setItem("token", token);
         navigate("/");
         window.location.reload();
-  
       } else {
         console.log("Failed to log in");
       }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/FitnessPro (Logo)[Dark].png";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,6 +13,20 @@ const Login = () => {
   const handlePassword = (e) => {
     setPassword(e.target.value);
   };
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsAuthenticated(true);
+      console.log("Token - ", token);
+    }
+  }, []);
+
+  if (isAuthenticated) {
+    navigate("/Homepage");
+  }
 
   let csrfToken = null;
   const getCsrfToken = async () => {

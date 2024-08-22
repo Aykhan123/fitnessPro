@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -19,14 +20,15 @@ function classNames(...classes) {
 }
 
 const navigation = [
-  { name: "Home", href: "/", current: true },
+  { name: "Home", href: "/Homepage", current: false },
   { name: "Get Foods", href: "/getFoods", current: false },
   { name: "Calorie Tracker", href: "/Tracker", current: false },
   { name: "User", href: "/User", current: false },
 ];
 const Navbar = ({ isAuthenticated }) => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const hideNavbarOnPaths = ["/", "/landing"]; // Add paths where you want to hide the navbar
+  const hideNavbarOnPaths = ["/", "/Signup", "Login"]; // Add paths where you want to hide the navbar
 
   // Check if current path is in the list of paths where the navbar should be hidden
   if (hideNavbarOnPaths.includes(location.pathname)) {
@@ -36,25 +38,18 @@ const Navbar = ({ isAuthenticated }) => {
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
     console.log(token);
-    if (token) {
-      const response = await fetch("http://127.0.0.1:8000/sign_out", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": await getCsrfToken(),
-          Authorization: `Token ${token}`,
-        },
-      });
-      if (response.ok) {
-        localStorage.removeItem("token");
-        console.log("token removed successfully");
-        window.location.reload();
-      }
-    }
+
+    localStorage.removeItem("token");
+    console.log("token removed successfully");
+    navigate("/");
+    window.location.reload();
   };
 
   //GET IMAGE FUNCTION
 
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(
+    "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"
+  );
 
   let csrfToken = null;
   const getCsrfToken = async () => {
@@ -117,21 +112,23 @@ const Navbar = ({ isAuthenticated }) => {
               </div>
               <div className="hidden sm:ml-6 sm:block">
                 <div className="flex space-x-4">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      aria-current={item.current ? "page" : undefined}
-                      className={classNames(
-                        item.current
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "rounded-md px-3 py-2 text-sm font-medium"
-                      )}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                  {navigation.map((item) => {
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        aria-current={item.current ? "page" : undefined}
+                        className={classNames(
+                          item.current
+                            ? "bg-gray-900 text-white"
+                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                          "rounded-md px-3 py-2 text-sm font-medium"
+                        )}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
