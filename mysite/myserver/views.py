@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
-from myserver.models import DailyNutrition, CalorieTracker, Pictures
+from myserver.models import DailyNutrition, CalorieTracker, Pictures, UserHealthData
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.utils.functional import SimpleLazyObject
@@ -345,13 +345,110 @@ def get_image(request):
 def delete_image(request):
     try:
         user = request.user
-        pic = Pictures.objects.get(user=user)
-        pic.delete()
+        picture = Pictures.objects.get(user=user)
+        picture.delete()
         return JsonResponse({'status': 'Picture was successfully deleted'}, status=200)
     except Pictures.DoesNotExist:
         return JsonResponse({'error': 'Picture was not found for this user'}, status=404)
     
+
+def calculate_calories_protein(weight_lbs, height_in, gender, activity_level, target_weight_lbs, age):
+    weight_kg = weight_lbs / 2.205
+    height_cm = height_in * 2.54
+    target_weight_kg = target_weight_lbs / 2.205
     
+    if gender == 'male':
+        bmr = 88.362 + (13.397 * weight_kg) + (4.799 * height_cm) - (5.677 * age)
+    else:
+        bmr = 447.593 + (9.247 * weight_kg) + (3.098 * height_cm) - (4.330 * age)
+
+    activity_multiplier = {
+        'sedentary': 1.2,
+        'light': 1.375,
+        'moderate': 1.55,
+        'active': 1.725,
+        'very_active': 1.9
+    }
+
+    current_daily_calories = bmr * activity_multiplier[activity_level]
+
+    if weight_lbs > target_weight_lbs:
+        daily_calories = current_daily_calories - 500 
+    elif weight_lbs < target_weight_lbs:
+        daily_calories = current_daily_calories + 500 
+    else:
+        daily_calories = current_daily_calories
+    
+    protein_per_lb = 0.8
+    daily_protein = protein_per_lb * weight_lbs
+    # print(bmr * activity_multiplier['very_active'], daily_protein)
+
+    return daily_calories, daily_protein, current_daily_calories
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def calculate_recommendation(request):
+    if request.method == 'POST':
+            data = json.loads(request.body)
+            weight = float(data['weight'])
+            height = float(data['height'])
+            gender = data['gender']
+            age = int(data['age'])
+            activity_level = data['activity_level']
+            target_weight = float(data['target_weight'])
+
+            recommended_calories, recommended_protein, current_daily_calories = calculate_calories_protein(
+                weight, height, gender, activity_level, target_weight, age
+            )
+
+            health_data, created = UserHealthData.objects.update_or_create(
+                user=request.user,
+                defaults={
+                    'weight': weight,
+                    'height': height,
+                    'age': age,
+                    'gender': gender,
+                    'activity_level': activity_level,
+                    'target_weight': target_weight,
+                    'recommended_calories': recommended_calories,
+                    'recommended_protein': recommended_protein,
+                    'maintain_weight': current_daily_calories
+                }
+            )
+
+            return JsonResponse({
+                'recommended_calories': recommended_calories,
+                'recommended_protein': recommended_protein,
+                'maintain': current_daily_calories
+            }, status=200)
+
+    return JsonResponse({'error': 'error posting to db'})
+    
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])   
+def get_recommendation(request):
+    user = request.user
+    try:
+        user_health_data = UserHealthData.objects.get(user=user)
+    except UserHealthData.DoesNotExist:
+        return JsonResponse({'error': 'User health data does not exist'}, status=404)
+    
+    data = {
+        'weight': user_health_data.weight,
+        'height': user_health_data.height,
+        'gender': user_health_data.gender,
+        'activity_level': user_health_data.activity_level,
+        'target_weight': user_health_data.target_weight,
+        'recommended_calories': user_health_data.recommended_calories,
+        'recommended_protein': user_health_data.recommended_protein,
+        'maintain_weight': user_health_data.maintain_weight
+    }
+    return JsonResponse(data, status=200)
+
 
 
 

@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
 import User from "./pages/User"
+// import Tracker from "./Tracker";
 import TermsAndConditions from "./pages/Terms";
 import {
   BrowserRouter as Router,
@@ -35,8 +36,20 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsAuthenticated(true);
-      console.log("Token - ", token);
+      const authenticate = async () => {
+        const response = await fetch("http://127.0.0.1:8000/test_token",{
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+        },
+        })
+        if(response.ok){
+          console.log(response)
+          setIsAuthenticated(true)
+        }
+      }
+      // console.log("Token - ", token);
+      authenticate()
     }
   }, []);
 
@@ -64,6 +77,8 @@ function App() {
         <Route path="/Tracker" element={<Tracker />} />
         <Route path="/User" element={<User />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+        <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+        <Route path="/Tracker" element={<Tracker />} />
       </Routes>
     </Router>
   );

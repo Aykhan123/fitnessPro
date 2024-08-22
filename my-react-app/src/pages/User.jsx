@@ -48,6 +48,23 @@ const User = () => {
     value: key,
   }));
 
+  const activityLevels = [
+    { value: "sedentary", label: "Sedentary (little or no exercise)" },
+    {
+      value: "light",
+      label: "Lightly active (light exercise/sports 1-3 days/week)",
+    },
+    {
+      value: "moderate",
+      label: "Moderately active (moderate exercise/sports 3-5 days/week)",
+    },
+    { value: "active", label: "Active (hard exercise/sports 6-7 days a week)" },
+    {
+      value: "very_active",
+      label: "Very active (very hard exercise/sports & a physical job)",
+    },
+  ];
+
   const [selectedNutrients, setSelectedNutrients] = useState([
     "calories",
     "protein",
@@ -55,6 +72,7 @@ const User = () => {
     "sodium",
   ]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [formModalIsOpen, setFormModalIsOpen] = useState(false);
 
   const [nutritionalData, setNutritionData] = useState({});
   let csrfToken = null;
@@ -71,6 +89,83 @@ const User = () => {
 
   const [uploadedImage, setUploadedImage] = useState("");
   const [base64String, setBase64String] = useState("");
+
+  const [formData, setFormData] = useState({
+    gender: "",
+    age: "",
+    weight: "",
+    height: "",
+    activity_level: "",
+    target_weight: "",
+  });
+  const [recommendedCalories, setRecommendedCalories] = useState("");
+  const [maintainWeight, setMaintainWeight] = useState("");
+  const [recommendedProtein, setRecommendedProtein] = useState("");
+
+  const calculateCalories = async () => {
+    console.log(formData);
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      "http://127.0.0.1:8000/calculate_recommendation",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        body: JSON.stringify({
+          gender: formData.gender,
+          age: formData.age,
+          weight: formData.weight,
+          height: formData.height,
+          activity_level: formData.activity_level,
+          target_weight: formData.target_weight,
+        }),
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      // setRecommendedCalories(data.recommended_calories);
+      // setRecommendedProtein(data.recommended_protein);
+      // setMaintainWeight(data.maintain);
+      // console.log(data.recommended_calories)
+      // console.log(data.recommended_protein)/
+      setFormModalIsOpen(false);
+      setFormData({
+        gender: "",
+        age: "",
+        weight: "",
+        height: "",
+        activity_level: "",
+        target_weight: "",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const get_data = async () => {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://127.0.0.1:8000/get_recommendation", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setRecommendedCalories(Math.round(data.recommended_calories));
+        setRecommendedProtein(data.recommended_protein);
+        setMaintainWeight(Math.round(data.maintain_weight));
+        console.log(maintainWeight, recommendedProtein, recommendedProtein);
+      }
+    };
+    get_data();
+  }, []);
 
   const onImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -109,7 +204,7 @@ const User = () => {
   };
 
   const deleteImage = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const response = await fetch("http://127.0.0.1:8000/delete_image", {
       method: "POST",
       credentials: "include",
@@ -119,10 +214,10 @@ const User = () => {
         "X-CSRFToken": await getCsrfToken(),
       },
     });
-    if(response.ok){
-      window.location.reload()
+    if (response.ok) {
+      window.location.reload();
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,6 +262,14 @@ const User = () => {
     });
   };
 
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   const chartData = {
     labels: selectedNutrients.map(
       (nutrient) => options.find((option) => option.value === nutrient).label
@@ -199,33 +302,8 @@ const User = () => {
     0
   );
 
-  // Assuming a fixed goal for demonstration purposes
-  const goal = 2000; // Adjust as needed
+  const goal = 2000;
   const progress = (totalNutrition / goal) * 100;
-
-  // Commenting out weekly data and progress bar sections
-  /*
-  const weeklyData = {
-    labels: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
-    datasets: [
-      {
-        label: "Weekly Progress",
-        data: [90, 85, 75, 80, 70, 95, 100],
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-  */
 
   return (
     <>
@@ -246,7 +324,11 @@ const User = () => {
       >
         <h1>Nutrition Tracker</h1>
 
-        {/* Commenting out progress bar section */}
+        <button onClick={() => setFormModalIsOpen(true)}>
+          Open User Information Form
+        </button>
+
+        {/* Commented out progress bar and weekly graph sections */}
         {/* <div style={{ width: "80%", marginBottom: "20px" }}>
         <h2>Progress Towards Daily Goal</h2>
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -284,7 +366,7 @@ const User = () => {
         </div>
       </div> */}
 
-        {/* Commenting out weekly graph section */}
+        {/* Commented out weekly graph section */}
         {/* <div style={{ width: "80%", marginBottom: "20px" }}>
         <h2>Weekly Progress</h2>
         <Bar
@@ -304,6 +386,12 @@ const User = () => {
           }}
         />
       </div> */}
+
+        <div>
+          <h1>Users Goal For Daily Calorie Consumption:{recommendedCalories}</h1>
+          <h1>Users Goal For Daily Protein Recommendation:{recommendedProtein}</h1>
+          <h1>Users Goal To Maintain Current Weight:{maintainWeight}</h1>
+        </div>
 
         <button onClick={() => setModalIsOpen(true)}>
           Select Nutritional Values
@@ -352,7 +440,7 @@ const User = () => {
                       }
                       :
                     </strong>{" "}
-                    {nutritionalData[nutrient]} {units[nutrient]}
+                    {nutritionalData[nutrient]?.toFixed(2)} {units[nutrient]}
                   </li>
                 ))
               ) : (
@@ -367,39 +455,152 @@ const User = () => {
           onRequestClose={() => setModalIsOpen(false)}
           contentLabel="Select Nutritional Values"
           style={{
-            overlay: {
-              backgroundColor: "rgba(0, 0, 0, 0.75)",
-            },
             content: {
-              backgroundColor: "#333",
-              color: "white",
-              borderRadius: "8px",
-              padding: "20px",
-              maxWidth: "500px",
+              width: "300px",
+              height: "400px",
               margin: "auto",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             },
           }}
         >
           <h2>Select Nutritional Values</h2>
-          <ul style={{ listStyleType: "none", padding: 0 }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             {options.map((option) => (
-              <li key={option.value} style={{ marginBottom: "10px" }}>
-                <label>
-                  <input
-                    type="checkbox"
-                    value={option.value}
-                    checked={selectedNutrients.includes(option.value)}
-                    onChange={handleChecklistChange}
-                    style={{ marginRight: "10px" }}
-                  />
-                  {option.label}
-                </label>
-              </li>
+              <div
+                key={option.value}
+                className="form-group"
+                style={{ marginBottom: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  id={option.value}
+                  value={option.value}
+                  checked={selectedNutrients.includes(option.value)}
+                  onChange={handleChecklistChange}
+                  style={{ marginRight: "10px" }}
+                />
+                <label htmlFor={option.value}>{option.label}</label>
+              </div>
             ))}
-          </ul>
+          </div>
+
           <button
+            className="btn btn-primary"
             onClick={() => setModalIsOpen(false)}
-            style={{ marginTop: "10px" }}
+          >
+            Close
+          </button>
+        </Modal>
+
+        <Modal
+          isOpen={formModalIsOpen}
+          onRequestClose={() => setFormModalIsOpen(false)}
+          contentLabel="User Information Modal"
+          style={{
+            content: {
+              width: "300px",
+              height: "400px",
+              margin: "auto",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            },
+          }}
+        >
+          <h2 style={{ marginBottom: "10px" }}>User Information</h2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div className="form-group">
+              {/* <label>Gender</label> */}
+              <select
+                className="form-control"
+                name="gender"
+                value={formData.gender}
+                onChange={handleFormChange}
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="age"
+                placeholder="Age"
+                value={formData.age}
+                onChange={handleFormChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="weight"
+                placeholder="Weight (lbs)"
+                value={formData.weight}
+                onChange={handleFormChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="height"
+                placeholder="Height (inches)"
+                value={formData.height}
+                onChange={handleFormChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Activity Level</label>
+              <select
+                className="form-control"
+                name="activity_level"
+                value={formData.activity_level}
+                onChange={handleFormChange}
+              >
+                <option value="">Select Activity Level</option>
+                {activityLevels.map((level) => (
+                  <option key={level.value} value={level.value}>
+                    {level.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="target_weight"
+                placeholder="Target Weight (lbs)"
+                value={formData.target_weight}
+                onChange={handleFormChange}
+              />
+            </div>
+          </div>
+
+          <button className="btn btn-primary" onClick={calculateCalories}>
+            Calculate
+          </button>
+
+          <button
+            style={{ margin: "10px" }}
+            className="btn btn-primary"
+            onClick={() => {
+              setFormModalIsOpen(false);
+            }}
           >
             Close
           </button>

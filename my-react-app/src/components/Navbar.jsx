@@ -21,7 +21,7 @@ function classNames(...classes) {
 const navigation = [
   { name: "Home", href: "/", current: true },
   { name: "Get Foods", href: "/getFoods", current: false },
-  { name: "Calorie Tracker", href: "#", current: false },
+  { name: "Calorie Tracker", href: "/Tracker", current: false },
   { name: "User", href: "/User", current: false },
 ];
 const Navbar = ({ isAuthenticated }) => {
@@ -64,7 +64,7 @@ const Navbar = ({ isAuthenticated }) => {
             const data = await response.json();
             if (data.data) {
                 setImage(`data:image/jpeg;base64,${data.data}`);
-                console.log(data.image_data)
+                // console.log(data.image_data)
             }
         } 
     };
