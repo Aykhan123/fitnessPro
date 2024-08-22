@@ -23,6 +23,7 @@ const navigation = [
   { name: "Home", href: "/Homepage", current: false },
   { name: "Get Foods", href: "/getFoods", current: false },
   { name: "Calorie Tracker", href: "/Tracker", current: false },
+  { name: "Calorie Tracker", href: "/Tracker", current: false },
   { name: "User", href: "/User", current: false },
 ];
 const Navbar = ({ isAuthenticated }) => {

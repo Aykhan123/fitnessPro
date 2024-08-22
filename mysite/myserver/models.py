@@ -44,6 +44,25 @@ class Pictures(models.Model):
 
     def read_image(self):
         return self.image_data
+    
+class UserHealthData(models.Model):
+    ACTIVITY_LEVEL_CHOICES = [
+        ('sedentary', 'Sedentary (little or no exercise)'),
+        ('light', 'Lightly active (light exercise/sports 1-3 days/week)'),
+        ('moderate', 'Moderately active (moderate exercise/sports 3-5 days/week)'),
+        ('active', 'Active (hard exercise/sports 6-7 days a week)'),
+        ('very_active', 'Very active (very hard exercise/sports & a physical job)'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    weight = models.FloatField()
+    height = models.FloatField()
+    age = models.IntegerField()
+    gender = models.CharField(max_length=10)
+    activity_level = models.CharField(max_length=20, choices=ACTIVITY_LEVEL_CHOICES)
+    target_weight = models.FloatField()
+    recommended_calories = models.FloatField(null=True, blank=True)
+    recommended_protein = models.FloatField(null=True, blank=True)
+    maintain_weight = models.FloatField(null=True, blank=True)
 
 
 
