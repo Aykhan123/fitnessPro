@@ -63,7 +63,7 @@ const Signup = ({ onSignup }) => {
         const data = await logIn.json();
         const token = data.token;
         localStorage.setItem("token", token);
-        navigate("/");
+        navigate("/Homepage");
         window.location.reload();
       } else {
         console.log("Failed to log in");

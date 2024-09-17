@@ -1,3 +1,3 @@
-source dev-env/bin/activate
+source env/scripts/activate
 source environment.sh
 python3 manage.py runserver

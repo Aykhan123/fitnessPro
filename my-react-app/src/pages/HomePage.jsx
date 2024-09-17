@@ -2,12 +2,14 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Footer from "../components/Footer";
-
+import AddFood from "../components/AddFood";
+import FoodTracker from "../components/FoodTracker";
 export default function HomePage() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [caloriesConsumed, setCaloriesConsumed] = useState(1200); // Example value
   const [calorieGoal, setCalorieGoal] = useState(2000); // Example value
+  const [foodItems, setFoodItems] = useState([]); // New state for food items
 
   const progressPercentage = calorieGoal
     ? (caloriesConsumed / calorieGoal) * 100
@@ -35,6 +37,19 @@ export default function HomePage() {
     setIsModalOpen(false);
     // Update the user's profile to indicate that they've completed the first-time setup
   };
+
+  const handleAddFood = (foodName) => {
+    // Add the food item to the foodItems list or update accordingly
+    setFoodItems((prevItems) => [
+      ...prevItems,
+      { name: foodName, calories: 100 },
+    ]); // Example with 100 calories per food
+  };
+
+  const handleDeleteFood = () => {
+    setFoodItems([]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col mt-3">
       {/* Main Content */}
@@ -65,18 +80,8 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* Search Bar Section */}
-          <section className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Add Food</h2>
-            <input
-              type="text"
-              placeholder="Search for food..."
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            />
-            <button className="w-full mt-4 bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-500">
-              Add to Tracker
-            </button>
-          </section>
+          {/* Add Food Section (Now a component) */}
+          <AddFood onAddFood={handleAddFood} />
 
           {/* Pie Chart Placeholder */}
           <section className="bg-white p-6 rounded-lg shadow-md">
@@ -85,6 +90,8 @@ export default function HomePage() {
               <p className="text-gray-500">Pie chart will go here</p>
             </div>
           </section>
+
+          <FoodTracker foodItems={foodItems} onDeleteFood={handleDeleteFood} />
 
           {/* Additional Ideas */}
           <section className="bg-white p-6 rounded-lg shadow-md md:col-span-2">
