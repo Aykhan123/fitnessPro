@@ -14,20 +14,6 @@ const Login = () => {
     setPassword(e.target.value);
   };
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsAuthenticated(true);
-      console.log("Token - ", token);
-    }
-  }, []);
-
-  if (isAuthenticated) {
-    navigate("/Homepage");
-  }
-
   let csrfToken = null;
   const getCsrfToken = async () => {
     const request = await fetch("http://127.0.0.1:8000/csrftoken/", {

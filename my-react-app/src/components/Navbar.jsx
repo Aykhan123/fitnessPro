@@ -14,7 +14,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../assets/FitnessPro (2).png";
-import GetImage from "../components/GetImage";
+import PFP from "../assets/PFP.jpg";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -49,9 +49,7 @@ const Navbar = ({ isAuthenticated }) => {
 
   //GET IMAGE FUNCTION
 
-  const [fetchedImage, setFetchedImage] = useState(
-    "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"
-  );
+  const [image, setImage] = useState(PFP);
 
   let csrfToken = null;
   const getCsrfToken = async () => {
