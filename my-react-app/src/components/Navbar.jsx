@@ -15,6 +15,7 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../assets/FitnessPro (2).png";
 import PFP from "../assets/PFP.jpg";
+import GetImage from "./GetImage";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -49,7 +50,8 @@ const Navbar = ({ isAuthenticated }) => {
 
   //GET IMAGE FUNCTION
 
-  const [image, setImage] = useState(PFP);
+  // const [image, setImage] = useState(PFP);
+  const [fetchedImage, setFetchedImage] = useState( "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg")
 
   let csrfToken = null;
   const getCsrfToken = async () => {
@@ -64,25 +66,9 @@ const Navbar = ({ isAuthenticated }) => {
 
   useEffect(() => {
     const fetchImage = async () => {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://127.0.0.1:8000/get_image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-          "X-CSRFToken": await getCsrfToken(),
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data) {
-          setImage(`data:image/jpeg;base64,${data.data}`);
-          console.log(data.image_data);
-        }
-      }
+      const image = await GetImage();
+      setFetchedImage(image);
     };
-
     fetchImage();
   }, []);
 
@@ -139,7 +125,11 @@ const Navbar = ({ isAuthenticated }) => {
                   <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span className="absolute -inset-1.5" />
                     <span className="sr-only">Open user menu</span>
-                    <img alt="" src={image} className="h-8 w-8 rounded-full" />
+                    <img
+                      alt=""
+                      src={fetchedImage}
+                      className="h-8 w-8 rounded-full"
+                    />
                   </MenuButton>
                 </div>
                 <MenuItems

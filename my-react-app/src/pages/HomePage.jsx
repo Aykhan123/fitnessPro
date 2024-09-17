@@ -4,6 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import Footer from "../components/Footer";
 import AddFood from "../components/AddFood";
 import FoodTracker from "../components/FoodTracker";
+import NutritionPieChart from "../components/PieChart";
 export default function HomePage() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,9 +86,12 @@ export default function HomePage() {
 
           {/* Pie Chart Placeholder */}
           <section className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Nutrient Breakdown</h2>
-            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">Pie chart will go here</p>
+            {/* <h2 className="text-xl font-semibold mb-4">Nutrient Breakdown</h2> */}
+            <div className="w-full bg-gray-200 rounded-lg flex items-center justify-center">
+              {/* <p className="text-gray-500">Pie chart will go here</p> */}
+              <div className="w-full h-full p-4">
+                <NutritionPieChart />
+              </div>
             </div>
           </section>
 

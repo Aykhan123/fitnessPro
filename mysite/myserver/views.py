@@ -449,12 +449,9 @@ def get_recommendation(request):
     }
     return JsonResponse(data, status=200)
 
-
-
-
-
-   
-
-
-
-
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_username(request):
+    user = request.user
+    return JsonResponse({"username": user.username})
