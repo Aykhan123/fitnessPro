@@ -4,6 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import Footer from "../components/Footer";
 import AddFood from "../components/AddFood";
 import FoodTracker from "../components/FoodTracker";
+import NutritionPieChart from "../components/PieChart";
 export default function HomePage() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
