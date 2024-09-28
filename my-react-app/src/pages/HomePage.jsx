@@ -14,6 +14,7 @@ export default function HomePage() {
   const [calorieGoal, setCalorieGoal] = useState(2000); // Example value
   const [recommendedCalories, setRecommendedCalories] = useState(null); // Store recommended calories
   const [foodItems, setFoodItems] = useState([]); // New state for food items
+  const [nextId, setNextId] = useState(1);
   const [formData, setFormData] = useState({
     gender: "",
     age: "",
@@ -118,15 +119,21 @@ export default function HomePage() {
     }
   }, [isRecommendationModalOpen]);
 
+  const handleAddFood = (foodName, calories) => {
+    // Add the food item to the foodItems list or update accordingly
   const handleAddFood = (foodName) => {
     setFoodItems((prevItems) => [
+      {  id: nextId, name: foodName, calories: calories },
       ...prevItems,
+    ]);
+
+    setNextId(nextId + 1);
       { name: foodName, calories: 100 },
     ]);
   };
 
-  const handleDeleteFood = () => {
-    setFoodItems([]);
+  const handleDeleteFood = (id) => {
+    setFoodItems((prevItems) => prevItems.filter((food) => food.id !== id));
   };
 
   return (
