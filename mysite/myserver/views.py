@@ -39,17 +39,19 @@ def csrftoken(request):
 def fatsecret_request(request):
     if request.method == 'POST':
         try:
-            decoded_body = request.body.decode('utf-8')
-            data = json.loads(decoded_body)
-            if data:
+            data = request.body.decode('utf-8').strip()  # decode and strip any leading/trailing whitespace
+            print(f"Data received: {data}")
+
+            if data:  # Proceed if data is present
                 api_key = os.getenv('api_key')
-                shared_secret =  os.getenv('shared_secret')
+                shared_secret = os.getenv('shared_secret')
+
                 if not api_key or not shared_secret:
                     raise Exception('api_key or shared_secret has not been set')
+
                 endpoint = 'https://platform.fatsecret.com/rest/server.api'
                 oauth_nonce = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
                 oauth_timestamp = str(int(time.time()))
-                search_expression = data
 
                 params = {
                     'method': 'foods.search',
@@ -59,15 +61,28 @@ def fatsecret_request(request):
                     'oauth_timestamp': oauth_timestamp,
                     'oauth_version': '1.0',
                     'format': 'json',
-                    'search_expression': data,
+                    'search_expression': data,  # "Apple Pie" passed in here
                 }
 
-                base_string = f"GET&{quote(endpoint, safe='')}&{quote(urlencode(sorted(params.items())), safe='')}"
-                signing_key = f"{shared_secret}&"
-                oauth_signature = base64.b64encode(hmac.new(signing_key.encode(), base_string.encode(), hashlib.sha1).digest()).decode()
+                # Step 1: Sort and encode the parameters
+                sorted_params = sorted(params.items())
+                encoded_params = urlencode(sorted_params, quote_via=quote)
 
+                # Step 2: Create the base string
+                base_string = f"GET&{quote(endpoint, safe='')}&{quote(encoded_params, safe='')}"
+
+                # Step 3: Create the signing key
+                signing_key = f"{shared_secret}&"
+
+                # Step 4: Generate the OAuth signature
+                oauth_signature = base64.b64encode(
+                    hmac.new(signing_key.encode(), base_string.encode(), hashlib.sha1).digest()
+                ).decode()
+
+                # Add the OAuth signature to the parameters
                 params['oauth_signature'] = oauth_signature
 
+                # Step 5: Make the GET request
                 response = requests.get(endpoint, params=params)
                 if response.status_code == 200:
                     return JsonResponse(response.json(), status=200)
@@ -75,8 +90,8 @@ def fatsecret_request(request):
                     return JsonResponse({'error': 'Failed to fetch data from FatSecret API'}, status=response.status_code)
             else:
                 return JsonResponse({'error': 'No data provided'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
@@ -99,7 +114,6 @@ def fatsecret_get(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body)
-
             consumer_key = os.getenv('consumer_key')
             consumer_secret = os.getenv('consumer_secret')
             if not consumer_key or not consumer_secret:

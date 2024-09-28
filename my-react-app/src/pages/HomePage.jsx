@@ -11,6 +11,7 @@ export default function HomePage() {
   const [caloriesConsumed, setCaloriesConsumed] = useState(1200); // Example value
   const [calorieGoal, setCalorieGoal] = useState(2000); // Example value
   const [foodItems, setFoodItems] = useState([]); // New state for food items
+  const [nextId, setNextId] = useState(1);
 
   const progressPercentage = calorieGoal
     ? (caloriesConsumed / calorieGoal) * 100
@@ -39,16 +40,18 @@ export default function HomePage() {
     // Update the user's profile to indicate that they've completed the first-time setup
   };
 
-  const handleAddFood = (foodName) => {
+  const handleAddFood = (foodName, calories) => {
     // Add the food item to the foodItems list or update accordingly
     setFoodItems((prevItems) => [
+      {  id: nextId, name: foodName, calories: calories },
       ...prevItems,
-      { name: foodName, calories: 100 },
-    ]); // Example with 100 calories per food
+    ]);
+
+    setNextId(nextId + 1);
   };
 
-  const handleDeleteFood = () => {
-    setFoodItems([]);
+  const handleDeleteFood = (id) => {
+    setFoodItems((prevItems) => prevItems.filter((food) => food.id !== id));
   };
 
   return (

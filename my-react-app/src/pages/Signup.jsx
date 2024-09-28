@@ -10,7 +10,12 @@ const Signup = ({ onSignup }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const isPasswordMatch = password === confirmPassword;
-
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/Homepage");
+      window.location.reload();
+    }
+  }, []);
   let csrfToken = null;
   const getCsrfToken = async () => {
     const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
