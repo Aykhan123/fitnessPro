@@ -121,14 +121,12 @@ export default function HomePage() {
 
   const handleAddFood = (foodName, calories) => {
     // Add the food item to the foodItems list or update accordingly
-    const handleAddFood = (foodName) => {
-      setFoodItems((prevItems) => [
-        { id: nextId, name: foodName, calories: calories },
-        ...prevItems,
-      ]);
+    setFoodItems((prevItems) => [
+      { id: nextId, name: foodName, calories: calories },
+      ...prevItems,
+    ]);
 
-      setNextId(nextId + 1);
-    };
+    setNextId(nextId + 1);
   };
 
   const handleDeleteFood = (id) => {
