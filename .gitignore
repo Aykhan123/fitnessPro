@@ -5,3 +5,4 @@ mysite/myserver/__pycache__/views.cpython-310.pyc
 .vscode/*
 db.sqlite3
 mysite/myserver/__pycache__/views.*
+mysite/myserver/__pycache__/*

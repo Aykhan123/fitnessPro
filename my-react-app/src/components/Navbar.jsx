@@ -51,7 +51,7 @@ const Navbar = ({ isAuthenticated }) => {
   //GET IMAGE FUNCTION
 
   // const [image, setImage] = useState(PFP);
-  const [fetchedImage, setFetchedImage] = useState( "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg")
+  const [fetchedImage, setFetchedImage] = useState("https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg")
 
   let csrfToken = null;
   const getCsrfToken = async () => {
