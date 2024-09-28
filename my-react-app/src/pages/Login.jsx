@@ -44,6 +44,7 @@ const Login = () => {
       console.log(token);
       localStorage.setItem("token", token);
       console.log(data);
+      navigate('/Homepage')
       window.location.reload();
     }
   };
