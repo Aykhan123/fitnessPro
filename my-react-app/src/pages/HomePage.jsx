@@ -77,20 +77,20 @@ export default function HomePage() {
       if (response.ok) {
         const data = await response.json();
         // setCalorieGoal(Math.round(data.recommended_calories));
-        setRecommendedCalories(Math.round(data.recommended_calories))
+        setRecommendedCalories(Math.round(data.recommended_calories));
 
         // Close the first modal and open the second modal
         setIsModalOpen(false);
         setIsRecommendationModalOpen(true); // Open the recommendation modal
       }
-    }  
+    }
   };
 
   // Save Recommended Calories As Goal
 
   const saveRecommendedCalories = () => {
-    setCalorieGoal(recommendedCalories)
-  }
+    setCalorieGoal(recommendedCalories);
+  };
 
   // Fetch calorie recommendations in the second modal
   useEffect(() => {
@@ -121,15 +121,14 @@ export default function HomePage() {
 
   const handleAddFood = (foodName, calories) => {
     // Add the food item to the foodItems list or update accordingly
-  const handleAddFood = (foodName) => {
-    setFoodItems((prevItems) => [
-      {  id: nextId, name: foodName, calories: calories },
-      ...prevItems,
-    ]);
+    const handleAddFood = (foodName) => {
+      setFoodItems((prevItems) => [
+        { id: nextId, name: foodName, calories: calories },
+        ...prevItems,
+      ]);
 
-    setNextId(nextId + 1);
-      { name: foodName, calories: 100 },
-    ]);
+      setNextId(nextId + 1);
+    };
   };
 
   const handleDeleteFood = (id) => {
@@ -398,7 +397,10 @@ export default function HomePage() {
                     <div>
                       <button
                         type="button"
-                        onClick={() => {setIsRecommendationModalOpen(false), saveRecommendedCalories()} }
+                        onClick={() => {
+                          setIsRecommendationModalOpen(false),
+                            saveRecommendedCalories();
+                        }}
                         className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Save Recommendation As Goal
