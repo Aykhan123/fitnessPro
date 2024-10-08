@@ -140,7 +140,7 @@ const Signup = ({ onSignup }) => {
                   Confirm password
                 </label>
                 <input
-                  type="confirm-password"
+                  type="password"
                   name="confirm-password"
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   id="confirm-password"

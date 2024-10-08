@@ -1,6 +1,8 @@
 import { useState } from "react";
+import PFP from "../assets/PFP.jpg"
 
 const GetImage = async () => {
+  const [fetchedImage, setFetchedImage]= useState(PFP)
   const getCsrfToken = async () => {
     const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
       method: "GET",
@@ -22,6 +24,8 @@ const GetImage = async () => {
     const data = await response.json();
     if (data.data) {
       return `data:image/jpeg;base64,${data.data}`;
+    }else{
+      return fetchedImage
     }
   }
 };

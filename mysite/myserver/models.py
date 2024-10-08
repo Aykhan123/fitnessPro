@@ -64,7 +64,10 @@ class UserHealthData(models.Model):
     recommended_protein = models.FloatField(null=True, blank=True)
     maintain_weight = models.FloatField(null=True, blank=True)
 
-
+class CalorieGoal(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    calorie_goal = models.IntegerField()
+    first_time = models.BooleanField(default=True)
 
 
 
