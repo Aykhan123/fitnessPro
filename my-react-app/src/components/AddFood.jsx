@@ -89,7 +89,11 @@ export default function AddFood({ onAddFood }) {
         .then((response) => response.json())
         .then((data) => {
           console.log(data.food.servings.serving);
-          let NutritionFood = data.food.servings.serving;
+          let NutritionFood = Array.isArray(data.food.servings.serving)
+            ? data.food.servings.serving.length > 1
+              ? data.food.servings.serving[0]
+              : data.food.servings.serving
+            : data.food.servings.serving;
           setFoodIdSearch(data.food.servings.serving);
           fetch("http://127.0.0.1:8000/add_nutrition", {
             method: "POST",
