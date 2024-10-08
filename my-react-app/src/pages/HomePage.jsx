@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import AddFood from "../components/AddFood";
 import FoodTracker from "../components/FoodTracker";
 import NutritionPieChart from "../components/PieChart";
+import { useFetcher } from "react-router-dom";
 
 export default function HomePage() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
@@ -28,6 +29,15 @@ export default function HomePage() {
     ? (caloriesConsumed / calorieGoal) * 100
     : 0;
 
+  const getCsrfToken = async () => {
+    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+      method: "GET",
+      credentials: "include",
+    });
+    const result = await request.json();
+    return result.csrf;
+  };
+
   useEffect(() => {
     // Check if user is a first-time user
     const firstTime = true; // Replace with actual logic
@@ -44,6 +54,32 @@ export default function HomePage() {
       [name]: value,
     });
   };
+
+  const fetchFoodList = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://127.0.0.1:8000/get_calorie_tracker", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      const initialFoodList = data.map((item) => ({
+        foodName: item.food_name,
+        calories: item.total_calories,
+      }));
+      setFoodItems(initialFoodList);
+    }
+  };
+  useEffect(() => {
+    fetchFoodList();
+  }, []);
 
   const saveCalorieGoal = async () => {
     if (Object.values(formData).every((field) => field.trim() !== "")) {

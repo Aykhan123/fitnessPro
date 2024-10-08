@@ -5,6 +5,7 @@ export default function AddFood({ onAddFood }) {
   const [calories, setCalories] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [foodIdSearch, setFoodIdSearch] = useState([]);
 
   // Fetch food suggestions from an API
   const fetchFoodSuggestions = async (query) => {
@@ -41,6 +42,90 @@ export default function AddFood({ onAddFood }) {
     setIsLoading(false);
   };
 
+  const handleFoodIdSearch = async (food_id) => {
+    fetch("http://127.0.0.1:8000/fatsecret_get", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": await getCsrfToken(),
+      },
+      credentials: "include",
+      body: JSON.stringify(food_id),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setFoodIdSearch(data.food.servings.serving[0]);
+      });
+    console.log(foodIdSearch);
+  };
+
+  const handleSubmit = async (foodName, calories, foodId) => {
+    const token = localStorage.getItem("token");
+    if (foodName) {
+      console.log("Yes");
+
+      await fetch("http://127.0.0.1:8000/calorie_tracker", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          food_name: foodName,
+          total_calories: calories,
+        }),
+      });
+
+      await fetch("http://127.0.0.1:8000/fatsecret_get", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": await getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify(foodId),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.food.servings.serving);
+          let NutritionFood = data.food.servings.serving;
+          setFoodIdSearch(data.food.servings.serving);
+          fetch("http://127.0.0.1:8000/add_nutrition", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${token}`,
+              "X-CSRFToken": getCsrfToken(),
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              date: new Date().toISOString().split("T")[0],
+              calcium: NutritionFood.calcium || 0,
+              calories: NutritionFood.calories || 0,
+              carbohydrate: NutritionFood.carbohydrate || 0,
+              cholesterol: NutritionFood.cholesterol || 0,
+              fat: NutritionFood.fat || 0,
+              fiber: NutritionFood.fiber || 0,
+              iron: NutritionFood.iron || 0,
+              monounsaturated_fat: NutritionFood.monounsaturated_fat || 0,
+              polyunsaturated_fat: NutritionFood.polyunsaturated_fat || 0,
+              potassium: NutritionFood.potassium || 0,
+              protein: NutritionFood.protein || 0,
+              saturated_fat: NutritionFood.saturated_fat || 0,
+              sodium: NutritionFood.sodium || 0,
+              sugar: NutritionFood.sugar || 0,
+              vitamin_a: NutritionFood.vitamin_a || 0,
+              vitamin_c: NutritionFood.vitamin_c || 0,
+            }),
+          });
+        });
+
+      // setFoodList([...foodList, { foodName, calories }]);;
+      console.log(foodIdSearch);
+    }
+  };
+
   const inputRef = useRef(null);
 
   const getCsrfToken = async () => {
@@ -73,13 +158,13 @@ export default function AddFood({ onAddFood }) {
   };
 
   // Handle when a food suggestion is clicked
-  const handleSuggestionClick = (suggestion) => {
+  const handleSuggestionClick = async (suggestion) => {
     const caloriesPart = suggestion.food_description.split("|")[0];
     const calories = caloriesPart.match(/Calories: (\d+)/)[1];
-    console.log(foodName, foodName.trim());
     onAddFood(suggestion.food_name, calories); // Pass the selected suggestion to the parent
     setFoodName(""); // Clear the input field
     setSuggestions([]); // Clear suggestions
+    await handleSubmit(suggestion.food_name, calories, suggestion.food_id);
   };
 
   const handleAddFood = () => {

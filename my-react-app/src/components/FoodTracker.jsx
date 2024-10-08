@@ -2,6 +2,7 @@ import React from "react";
 import { FaTrash } from "react-icons/fa"; // For the delete icon
 
 export default function FoodTracker({ foodItems, onDeleteFood }) {
+  console.log(foodItems);
   return (
     <section className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Food Tracker</h2>
@@ -15,7 +16,7 @@ export default function FoodTracker({ foodItems, onDeleteFood }) {
                 className="flex justify-between items-center bg-gray-100 p-3 rounded-lg"
               >
                 <span className="text-gray-700">
-                  {food.name} - {food.calories} kcal
+                  {food.foodName} - {food.calories} kcal
                 </span>
                 <button
                   className="text-red-500 hover:text-red-700"
