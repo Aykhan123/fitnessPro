@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
-from myserver.models import DailyNutrition, CalorieTracker, Pictures, UserHealthData
+from myserver.models import DailyNutrition, CalorieTracker, Pictures, UserHealthData, CalorieGoal
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.utils.functional import SimpleLazyObject
@@ -469,3 +469,28 @@ def get_recommendation(request):
 def get_username(request):
     user = request.user
     return JsonResponse({"username": user.username})
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def save_calorie_goal(request):
+    user = request.user
+    data = json.loads(request.body)
+    if request.method == "POST":
+        recommended_calories = data.get("recommended_calories")
+        calorie_goal, created = CalorieGoal.objects.update_or_create(user=user, defaults={"calorie_goal": recommended_calories})
+        if created:
+            calorie_goal.first_time = False
+            calorie_goal.save()
+        return Response({ "message": "Calorie goal saved successfully.","calorie_goal": recommended_calories}, status=200)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_calorie_goal(request):
+    user = request.user
+    try:
+        obj = CalorieGoal.objects.get(user=user)
+        return Response({"calorie_goal": obj.calorie_goal, "first_time": obj.first_time}, status=200)
+    except CalorieGoal.DoesNotExist:
+        return Response({"error": "Calorie goal not found"}, status=404)

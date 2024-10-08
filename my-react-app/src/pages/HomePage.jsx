@@ -7,15 +7,15 @@ import NutritionPieChart from "../components/PieChart";
 import { useFetcher } from "react-router-dom";
 
 export default function HomePage() {
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
-    useState(false); // Second modal state
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] = useState(false); // Second modal state
   const [caloriesConsumed, setCaloriesConsumed] = useState(1200); // Example value
   const [calorieGoal, setCalorieGoal] = useState(2000); // Example value
   const [recommendedCalories, setRecommendedCalories] = useState(null); // Store recommended calories
   const [foodItems, setFoodItems] = useState([]); // New state for food items
   const [nextId, setNextId] = useState(1);
+  const [userCalorieGoal, setUserCalorieGoal] = useState();
   const [formData, setFormData] = useState({
     gender: "",
     age: "",
@@ -29,14 +29,14 @@ export default function HomePage() {
     ? (caloriesConsumed / calorieGoal) * 100
     : 0;
 
-  const getCsrfToken = async () => {
-    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
-      method: "GET",
-      credentials: "include",
-    });
-    const result = await request.json();
-    return result.csrf;
-  };
+  // const getCsrfToken = async () => {
+  //   const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+  //     method: "GET",
+  //     credentials: "include",
+  //   });
+  //   const result = await request.json();
+  //   return result.csrf;
+  // };
 
   useEffect(() => {
     // Check if user is a first-time user
@@ -53,6 +53,14 @@ export default function HomePage() {
       ...formData,
       [name]: value,
     });
+  };
+  const getCsrfToken = async () => {
+    const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
+      method: "GET",
+      credentials: "include",
+    });
+    const result = await request.json();
+    return result.csrf;
   };
 
   const fetchFoodList = async () => {
@@ -85,16 +93,6 @@ export default function HomePage() {
     if (Object.values(formData).every((field) => field.trim() !== "")) {
       const token = localStorage.getItem("token");
 
-      // Fetch CSRF token
-      const getCsrfToken = async () => {
-        const request = await fetch("http://127.0.0.1:8000/csrftoken/", {
-          method: "GET",
-          credentials: "include",
-        });
-        const result = await request.json();
-        return result.csrf;
-      };
-
       // Post user data and get recommendations
       const response = await fetch(
         "http://127.0.0.1:8000/calculate_recommendation",
@@ -124,8 +122,54 @@ export default function HomePage() {
 
   // Save Recommended Calories As Goal
 
-  const saveRecommendedCalories = () => {
-    setCalorieGoal(recommendedCalories);
+  const saveRecommendedCalories = async () => {
+    // setCalorieGoal(recommendedCalories);
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://127.0.0.1:8000/save_calorie_goal", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({ recommended_calories: recommendedCalories }),
+    });
+  };
+
+  // Get saved calorie goal from database
+
+  useEffect(() => {
+    const getCalorieGoal = async () => {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://127.0.0.1:8000/get_calorie_goal", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setIsFirstTimeUser(data.first_time);
+        setCalorieGoal(data.calorie_goal);
+      }
+    };
+    getCalorieGoal();
+  }, []);
+
+  // Set your own goal
+  const setUserGoal = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://127.0.0.1:8000/save_calorie_goal", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({ recommended_calories: userCalorieGoal }),
+    });
   };
 
   // Fetch calorie recommendations in the second modal
@@ -369,7 +413,7 @@ export default function HomePage() {
                         onClick={saveCalorieGoal}
                         className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
-                        Save Goal
+                        See Recommendations
                       </button>
                     </div>
                   </Dialog.Panel>
@@ -457,6 +501,7 @@ export default function HomePage() {
                         id="ownGoal"
                         className="block w-3/4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="Set A Personal Goal"
+                        onChange={(e) => setUserCalorieGoal(e.target.value)}
                       />
                     </div>
                     <div className="mt-4">
@@ -464,7 +509,9 @@ export default function HomePage() {
                       {/* Add margin top for spacing */}
                       <button
                         type="button"
-                        onClick={() => setIsRecommendationModalOpen(false)}
+                        onClick={() => {
+                          setUserGoal(), setIsRecommendationModalOpen(false);
+                        }}
                         className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Set Your Own Goal
